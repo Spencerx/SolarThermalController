@@ -17,4 +17,6 @@ The first gate is the temperature of the water tank. If it goes blow a certain t
 The second gate is the time. I don't want the water to be heated at times where I won't be using it anyways, so I prefer to heat it as late as possible. In my case, if I use all hot water during the day and at night it is below the threshold, then it should heat up only between 4am and 6 am, to ensure a minimum temperature for the start of the day. Probably the sun will kick in after 7 am, so no need to heat the water too much with electricity.
 
 # Questions?
-Please contact me if you have ideas on how to improve this project. 
+Please contact me if you have ideas on how to improve this project.
+
+https://about.me/olmotomasmezger

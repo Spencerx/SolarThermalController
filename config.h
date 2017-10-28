@@ -11,11 +11,11 @@
 #define POWER_OFF_HOUR 6 // the hour of the day where the electric heater stops operating.
 #define POWER_OFF_MINUTE 30 // the Minute of the day where the electric heater stops operating.
 
-#define INITIALIZE_DELAY_NETWORK_MINUTES 1 // after a power off, wait this amount of minutes for the network to start
+#define INITIALIZE_DELAY_NETWORK_MINUTES 0 // after a power off, wait this amount of minutes for the network to start
 
 #define TYPE_DS18S20 0
 #define TYPE_DS18B20 1
 #define TYPE_DS18S22 2
 #define TYPE_MAX31850 3
 #define TYPE_knock 4
-#define W1_BUS_PIN 5
+#define W1_BUS_PIN 2

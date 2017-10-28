@@ -7,6 +7,7 @@ bool doDebug = DO_DEBUG_MESSAGES;
 OneWire ds(W1_BUS_PIN);  // on pin x (a 4.7K resistor is necessary to 5V.)
 short Nsensors;
 boolean initialRun = true;
+boolean currentElectricalHeaterStatus = false;
 
 typedef struct {
   byte sensorAddress[8];
@@ -44,11 +45,10 @@ void loop() {
       Serial.println("+++ Initial RUN ");
     }
 
-    list1WireSensors(ds);
     //28 9C A0 1D 7 0 0 3E
     byte sensorAddress[8] = {0x28, 0x9C, 0xA0, 0x1D, 0x07, 0x00, 0x00, 0x3E};
-    
     SensorObjects[0].SensorW1ini(sensorAddress, "hotwatter",100 );
+    // HOT WAtter temperature. 
     
 
     initialRun = false;
@@ -69,77 +69,65 @@ void loop() {
    
   SensorObjects[0].updateValue(ds);
   SensorObjects[0].checkAllValues();
+
+  // by now we have the temperature. let's check then if we need to start the electrical heater or not
+  signed int hotWatterTemp = SensorObjects[0].getValue();
+
+  if (doDebug){
+    Serial.print("=== Current Hot Watter Temperature = ");
+    Serial.println(hotWatterTemp);
+    
+    Serial.print("=== Current Electrical Heater Status = ");
+    Serial.println(currentElectricalHeaterStatus);
+
+    Serial.print("=== Battle: ");
+    Serial.print(hotWatterTemp/100);
+    Serial.print("C vs ");
+    Serial.print((HOTWATTER_MIN_TEMP)/100);
+    Serial.println("C.");
+  }
+  
+  if (currentElectricalHeaterStatus){
+    // currently the heater is ON
+    if (hotWatterTemp > (HOTWATTER_MIN_TEMP+HOTWATTER_MIN_HYSTERESIS)){
+      // Watter is already too hot. we need to turn it OFF
+      if (doDebug){
+        Serial.print("=== ===> Current Hot Watter Temperature is too hot. let's turn off the Heater: ");
+        Serial.print(hotWatterTemp/100);
+        Serial.print("C > ");
+        Serial.print((HOTWATTER_MIN_TEMP+HOTWATTER_MIN_HYSTERESIS)/100);
+        Serial.println("C.");
+        
+      }
+      currentElectricalHeaterStatus = false;
+    }
+  }else{
+    // currently the heater is OFF
+    if (hotWatterTemp < (HOTWATTER_MIN_TEMP-HOTWATTER_MIN_HYSTERESIS)){
+      // we need to turn it ON
+      if (doDebug){
+        Serial.print("=== ===> Current Hot Watter Temperature is too cold. let's turn ON the Heater: ");
+        Serial.print(hotWatterTemp/100);
+        Serial.print("C < ");
+        Serial.print((HOTWATTER_MIN_TEMP-HOTWATTER_MIN_HYSTERESIS)/100);
+        Serial.println("C.");
+        
+      }
+      currentElectricalHeaterStatus = true;
+    }
+  }
+  digitalWrite(RELAIS_PIN, currentElectricalHeaterStatus);
+
   
   if (doDebug){
     Serial.println("--- Normal Loop ENDS here.");
   }
-  delay(1000); // wait 5 seconds.
+  int delayMinutes = 1;
+  //delay(delayMinutes*60*1000); // wait x minutes.
+  delay(5000);
 } // end of loop.
 
 
 
 
-
-
-void list1WireSensors(OneWire ds) {
-  //Serial.println("In list1WireSensors:  --- START");
-  // this function searches for sensors in the 1 Wire network and returns them as an array (of addressess)
-  byte iWhile = 0;
-  byte iAddr = 0;
-  byte addr[8];
-
-  boolean doLoop1WireBus = true;
-  while (doLoop1WireBus ) {
-    if (DO_DEBUG_MESSAGES){
-      Serial.println("--- ---- looping for sensor " + String(iWhile));
-    }
-    if ( !ds.search(addr)) {
-      doLoop1WireBus = false;
-      if (DO_DEBUG_MESSAGES ) {
-        Serial.println(F("No more addresses."));
-
-        Serial.println();
-      }
-      ds.reset_search();
-      delay(250);
-      //return read1WireReturns;
-      break; // breaks the while?
-    } else {
-      // not the last elemnt.. this is a valid one.
-      if (DO_DEBUG_MESSAGES ) {
-        Serial.print(F("Found a sensor with address ="));
-        for ( iAddr = 0; iAddr < 8; iAddr++) {
-          Serial.write(' ');
-          Serial.print(addr[iAddr], HEX);
-        }
-        Serial.println();
-      }
-
-
-      if (OneWire::crc8(addr, 7) != addr[7]) {
-        Serial.println("CRC is not valid!");
-        //return read1WireReturns;
-        break; // breaks the while?
-      }
-
-
-    } // end if last element.
-    if (DO_DEBUG_MESSAGES){
-      Serial.print(" ---> Address: ");
-    }
-      
-      if (DO_DEBUG_MESSAGES){
-
-        Serial.println();
-      }
-
-    //listOfSensors[i] = addr;
-    iWhile++;
-
-
-  } // end looping over sensors
-  //Serial.print(("returning list1WireSensors"));
-  delay(1000);
-  return;
-}
 

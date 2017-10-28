@@ -40,6 +40,7 @@ class SensorW1
     void activate();
     String getSensorPrettyName();
     void checkAllValues();
+    signed int getValue();
 };
 
 SensorW1::SensorW1(){
@@ -211,6 +212,9 @@ signed int SensorW1::getVFromA(byte _sensorIDA) {
   return (signed int) (hertz );
 
 
+}
+signed int SensorW1::getValue(){
+  return (_v_old);
 }
 void SensorW1::updateValue(OneWire ds) {
 

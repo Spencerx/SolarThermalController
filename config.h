@@ -11,6 +11,9 @@
 #define POWER_OFF_HOUR 6 // the hour of the day where the electric heater stops operating.
 #define POWER_OFF_MINUTE 30 // the Minute of the day where the electric heater stops operating.
 
+#define HOTWATTER_MIN_TEMP 4000 // this is the minimaltemperature allowed. if reached, electrical heater must start. in C/100
+#define HOTWATTER_MIN_HYSTERESIS 500 // 5K up and down, meainng the electrical heater starts at HOTWATTER_MIN_TEMP - HYSTERESIS and stops at HOTWATTER_MIN_TEMP + HYSTERESIS
+
 #define INITIALIZE_DELAY_NETWORK_MINUTES 0 // after a power off, wait this amount of minutes for the network to start
 
 #define TYPE_DS18S20 0
